@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import DB from '@/data/mongo'
-
+import conf from "../../../config/config"
 type Query = {
     x: number,
     y: number
@@ -14,12 +14,10 @@ type PixelColor = {
 
 
 const handler = (req: NextApiRequest, res: NextApiResponse) => {
-  const {x, y} = req.query
-  const {r, g, b} = req.query
+  const {x, y, r, g, b} = req.query
 
   const xCoord = Number(x)
   const yCoord = Number(y)
-
   const rColor = Number(r)
   const gColor = Number(g)
   const bColor = Number(b)
@@ -30,8 +28,8 @@ const handler = (req: NextApiRequest, res: NextApiResponse) => {
     rColor < 0 || 
     gColor < 0 || 
     bColor < 0 || 
-    xCoord > 255 || 
-    yCoord > 144 || 
+    xCoord > conf.canvasWidth / conf.pixelSize || 
+    yCoord > conf.canvasHeight / conf.pixelSize || 
     rColor > 255 || 
     gColor > 255 || 
     bColor > 255
@@ -57,7 +55,7 @@ const handler = (req: NextApiRequest, res: NextApiResponse) => {
   try {
     let data = db.updatePixel(query, color)
     res.status(200).json({
-      data
+      message: "Pixel updated",
     })
   } catch (err) {
     return res.status(500).json({
@@ -67,3 +65,9 @@ const handler = (req: NextApiRequest, res: NextApiResponse) => {
 }
 
 export default handler
+
+export const config = {
+  api: {
+    responseLimit: false,
+  },
+}

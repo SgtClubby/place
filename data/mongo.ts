@@ -1,14 +1,9 @@
 import { MongoClient } from "mongodb";
-import { WithId, Document } from "mongodb"
-let uri = "mongodb://localhost:27017";
-
-
 
 const client = new MongoClient(process.env.MONGODB_URI);
 
-const db = client.db("place")
-const collection = db.collection("canvas")
-// client.connect()
+const db = client.db("placeTest")
+const collection = db.collection("canvasData")
 
 type Color = {
     r: number,
