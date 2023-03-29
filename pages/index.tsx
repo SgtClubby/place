@@ -101,6 +101,8 @@ const Home: NextPage = ({canvasData}: any) => {
   const [selectedColor, setColor] = useState<Color>({color: '#FFFFFF'})
 
   const canvas: any = useRef()
+  
+
   useEffect(() => {
     const ctx = canvas.current.getContext("2d")
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -110,6 +112,9 @@ const Home: NextPage = ({canvasData}: any) => {
       ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`
       ctx.fillRect(x * conf.pixelSize, y * conf.pixelSize, conf.pixelSize, conf.pixelSize)
     })
+    canvas.current.focus({preventScroll: true})
+
+    ctx.scale(1, 1)
   }, [])
 
   
@@ -119,7 +124,7 @@ const Home: NextPage = ({canvasData}: any) => {
     fetch('/api/socketio').finally(() => {
       const socket = io()
       socket.on('connect', () => {
-        console.log('connect')
+        console.log('Websocket connected!')
         setSocket(socket)
       })
       
@@ -128,9 +133,8 @@ const Home: NextPage = ({canvasData}: any) => {
         ctx.fillStyle = `rgb(${data.color.r}, ${data.color.g}, ${data.color.b})`
         ctx.fillRect(data.x * conf.pixelSize, data.y * conf.pixelSize, conf.pixelSize, conf.pixelSize)
       })
-      
       socket.on('disconnect', (reason) => {
-        console.log('Something happened, you are disconnected')
+        console.log('Uhh oh! Something happened, you are disconnected from the Websocket, reconnecting...\nReason: ' + reason)
         if (reason === "io server disconnect") {
           // the disconnection was initiated by the server, you need to reconnect manually
           socket.connect();
@@ -149,7 +153,7 @@ const Home: NextPage = ({canvasData}: any) => {
   function registerClick() {
     const ctx = canvas.current.getContext("2d")
     const rgb = hexToRgb(selectedColor)
-      ctx.fillStyle = `rgb(${rgb.r}, ${rgb?.g}, ${rgb?.b})`
+      ctx.fillStyle = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
       ctx.fillRect(pos.x * conf.pixelSize, pos.y * conf.pixelSize, conf.pixelSize, conf.pixelSize);
       fetch(`/api/updatePixel?x=${pos.x}&y=${pos.y}&r=${rgb?.r}&g=${rgb?.g}&b=${rgb?.b}`)
       socket.emit("pixelUpdateRequest", {
@@ -163,13 +167,16 @@ const Home: NextPage = ({canvasData}: any) => {
       })
   }
 
+  function handleScroll(e: any) {
+    console.log(e)
+  }
+
   return (
     <div className=''>
         <div className='m-3 right-0 fixed z-20'>
         <p className='text-[1.4rem] mb-4 text-green-500 text-center'>Legacy colors:</p>
           <div className="flex h-fit flex-wrap w-52">
               {oldColor.map((color, index) => {
-                console.log(color == selectedColor.color) 
                 return (
                   <div key={index} 
                     onClick={() => {
@@ -218,8 +225,10 @@ const Home: NextPage = ({canvasData}: any) => {
       <div className="h-[100%] w-[100%] flex flex-col items-center justify-center">
         <div className=''>
           <canvas 
+            onFocus={(e) => handleScroll(e)}
             onPointerDown={registerClick} 
             onMouseMove={(e) => getMousePosition(e)} 
+            onScroll={(e) => handleScroll(e)}
             width={conf.canvasWidth} 
             height={conf.canvasHeight} 
             ref={canvas}>
