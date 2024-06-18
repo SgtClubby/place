@@ -6,7 +6,7 @@
     "start": "next start -p 5566"
   },
   "dependencies": {
-    "ably": "^1.2.5-beta.1",
+    "ably": "^1.2.46",
     "bufferutil": "^4.0.6",
     "dotenv": "^16.0.1",
     "fs": "^0.0.1-security",
@@ -19,7 +19,7 @@
     "socket.io-client": "^4.5.1",
     "tls": "^0.0.1",
     "utf-8-validate": "^5.0.9",
-    "ws": "^8.8.0"
+    "ws": "^8.17.1"
   },
   "devDependencies": {
     "@types/node": "^17.0.45",
